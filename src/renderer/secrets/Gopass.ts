@@ -51,7 +51,7 @@ export default class Gopass {
                 hash: '512sfasdasd',
                 author: 'Jonas Verhoelen <jonas.verhoelen@codecentric.de>',
                 timestamp: new Date() as any,
-                message: 'Removed Recipient 640F1D1D0E31A7BDEEEB8D99E8E300B26BE714EF'
+                message: 'Created this secret'
             }
         ]
     }
