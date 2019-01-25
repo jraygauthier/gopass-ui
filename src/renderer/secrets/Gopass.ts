@@ -13,8 +13,13 @@ const isDefined = (value: string) => !!value
 let executionId = 1
 
 export default class Gopass {
-    public static async copy(key: string): Promise<string> {
-        return Gopass.execute(`show ${key} -c`)
+    public static copy(key: string): Promise<string> {
+        //return Gopass.execute(`show ${key} -c`)
+        //return 'something'
+
+        return new Promise((resolve, reject) => {
+            setTimeout(() => resolve('something'), 300)
+        })
     }
 
     public static show(key: string): Promise<string> {
