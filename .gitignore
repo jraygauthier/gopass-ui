@@ -1,4 +1,8 @@
 node_modules/
+__node_modules__/
+
+result
+result-*
 
 .idea/
 *.iml
