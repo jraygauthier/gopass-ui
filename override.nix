@@ -255,4 +255,25 @@ Removed the scripts from the current pkg.
 
 See `package-removed.md` for the removed content.
 
+```
+$ electron --version
+events.js:174
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: spawn /nix/store/2y9dj49q3wwi7vmvmczv1ppsrrj9c9zi-node-dependencies-gopass-ui-0.6.0/lib/node_modules/electron/dist/electron
+ ENOENT
+    at Process.ChildProcess._handle.onexit (internal/child_process.js:240:19)
+    at onErrorNT (internal/child_process.js:415:16)
+    at process._tickCallback (internal/process/next_tick.js:63:19)
+    at Function.Module.runMain (internal/modules/cjs/loader.js:834:11)
+    at startup (internal/bootstrap/node.js:283:19)
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:623:3)
+Emitted 'error' event at:
+    at Process.ChildProcess._handle.onexit (internal/child_process.js:246:12)
+    at onErrorNT (internal/child_process.js:415:16)
+    [... lines matching original stack trace ...]
+    at bootstrapNodeJSCore (internal/bootstrap/node.js:623:3)
+```
+
 */

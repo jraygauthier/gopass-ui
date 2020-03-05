@@ -159,9 +159,7 @@
         in
       {
         name = "path.txt";
-        text = ''
-          ${content}
-        '';
+        text = content;
       });
     };
 
