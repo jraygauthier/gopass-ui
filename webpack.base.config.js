@@ -12,6 +12,7 @@ module.exports = {
         __filename: false
     },
     resolve: {
+        //modules: process.env.NODE_PATH.split(':'),
         extensions: ['.tsx', '.ts', '.js', '.json']
     },
     devtool: 'source-map',

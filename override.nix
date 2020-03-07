@@ -1,10 +1,11 @@
-{pkgs ? import <nixpkgs> {
-  inherit system;
-}, system ? builtins.currentSystem}:
+{ pkgs ? import <nixpkgs> {inherit system;}
+, system ? builtins.currentSystem
+, nodejs ? pkgs."nodejs-10_x"
+}:
 
 let
   nodePackages = import ./default.nix {
-    inherit pkgs system;
+    inherit pkgs system nodejs;
   };
 
   inherit (import ./electron-bin-fetchers.nix { inherit pkgs system; })
