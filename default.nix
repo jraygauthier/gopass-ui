@@ -8,7 +8,7 @@
 , runCommand
 , writeTextFile
 , electron_5
-, electron-chromedriver_3
+, electron-chromedriver_3 ? null
 , gifsicle
 , jq
 , libwebp
@@ -111,5 +111,12 @@ stdenv.mkDerivation rec {
         --add-flags "${src}" \
         --prefix PATH : "$out/${nodePackages_10_x.node2nix}"
     '';
+  };
+
+  meta = {
+    description = "Graphical user interface to gopass";
+    homepage = https://github.com/codecentric/gopass-ui;
+    license = lib.licenses.mit;
+    maintainers = with lib.maintainers; [ jraygauthier ];
   };
 }

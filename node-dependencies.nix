@@ -6,7 +6,7 @@
 , runCommand
 , writeTextFile
 , electron_5
-, electron-chromedriver_3
+, electron-chromedriver_3 ? null
 , gifsicle
 , jq
 , libwebp
@@ -118,8 +118,15 @@ let
 
     electron_cd_post_install_script_patch() {
       local pkg_dir="./node_modules/electron-chromedriver"
-      post_install_vendor_bin_script_patch "$pkg_dir" \
-        "${electron-chromedriver}/bin" "$pkg_dir/bin"
+      ${if null == electron-chromedriver
+        then ''
+          post_install_package_scripts_remove "$pkg_dir"
+        ''
+        else ''
+          post_install_vendor_bin_script_patch "$pkg_dir" \
+            "${electron-chromedriver}/bin" "$pkg_dir/bin"
+        ''
+      }
     }
 
     electron_cd_post_install_script_patch

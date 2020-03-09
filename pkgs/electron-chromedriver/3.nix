@@ -49,4 +49,11 @@ stdenv.mkDerivation rec {
     mkdir -p "$out/bin"
     find  . -mindepth 1 -maxdepth 1 -exec mv -t "$out/bin" "{}" \;
   '';
+
+  meta = {
+    description = "Download the ChromeDriver for Electron.";
+    homepage = https://github.com/electron/chromedriver;
+    license = lib.licenses.bsd3;
+    maintainers = with lib.maintainers; [ jraygauthier ];
+  };
 }
