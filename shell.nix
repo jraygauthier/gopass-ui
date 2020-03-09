@@ -1,12 +1,11 @@
 { nixpkgs ? <nixpkgs>
 , pkgs ? import nixpkgs { inherit system; }
 , system ? builtins.currentSystem
-, nodejs ? import ./custom-nodejs.nix {inherit nixpkgs pkgs system;}
-}:
+} @ args:
 
 with pkgs;
 
-mkShell {
+mkShell rec {
   buildInputs = [
     dieHook
     nodejs
@@ -14,16 +13,17 @@ mkShell {
     nodePackages.node2nix
   ];
 
-  devDeps = (import ./override.nix {
-      inherit pkgs system nodejs;
-    }).package;
+  unfilteredSrc = ./.;
+
+  nodeDeps = (lib.callPackageWith args ./release.nix {
+    }).release.nodeDeps;
 
   shellHook = ''
-    dev_node_modules="$devDeps/lib/node_modules/gopass-ui/node_modules"
+    dev_node_modules="$nodeDeps/lib/node_modules/gopass-ui/node_modules"
     export NODE_PATH="$dev_node_modules"
     export PATH="$dev_node_modules/.bin:$PATH"
 
-    shell_dir="${toString ./.}"
+    shell_dir="${toString unfilteredSrc}"
     if ! ln -fs -t "$shell_dir" "$dev_node_modules"; then
       printf -v "error_msg" "%s\n -> %s\n -> %s\n" \
         "ERROR: Non symlink '$shell_dir/node_modules' directory in the way." \

@@ -1,31 +1,61 @@
-{ nixpkgs ? <nixpkgs>
-, pkgs ? import nixpkgs {inherit system;}
-, system ? builtins.currentSystem
-, nodejs ? import ./custom-nodejs.nix {inherit nixpkgs pkgs system;}
+{ system
+, lib
+, stdenv
+, fetchgit
+, fetchurl
+, runCommand
+, writeTextFile
+, electron_5
+, electron-chromedriver_3
+, gifsicle
+, jq
+, libwebp
+, mozjpeg
+, nodejs-10_x
+, optipng
+, pngquant
+, python2
+, utillinux
+, gopass-ui-src
 }:
 
-with pkgs;
-
 let
-  nodePackages = import ./default.nix {
-    inherit pkgs system nodejs;
+  nodePackages = import ./node-composition.nix {
+    inherit system;
+    nodejs = nodejs-10_x;
+    pkgs = {
+      inherit fetchurl fetchgit;
+      inherit stdenv python2 utillinux runCommand writeTextFile;
+    };
   };
 
-  inherit (import ./electron-bin-fetchers.nix { inherit pkgs system; })
-    electron-chromedriver electron;
+  electron = electron_5;
+  electron-chromedriver = electron-chromedriver_3;
+  # This file is written by `node_modules/electron/install.js::extractFile`
+  # and seems to be mandatory for the package to recognise that the bin dist
+  # has been properly installed.
+  electronPathTxtFile = writeTextFile (
+    let
+      platform = lib.lists.last (builtins.split "-" system);
+      # Should match what is returned by `node_modules/electron/install.js::getPlatformPath`.
+      content = ({
+        "darwin" = "Electron.app/Contents/MacOS/Electron";
+        "freebsd" = "electron";
+        "linux" = "electron";
+        "win32" = "electron.exe";
+      })."${platform}";
+    in
+  {
+    name = "path.txt";
+    text = content;
+  });
 
-  buildInputs = with pkgs; [
-    # tree
-
+  buildInputs = [
     # Patching various `package.json` files.
     jq
   ];
 
   preRebuild = ''
-    # wrapProgram $out/bin/dnschain --suffix PATH : ${pkgs.openssl.bin}/bin
-    # 1>&2 tree
-    # false
-
     post_install_package_scripts_remove() {
       local pkg_dir="''${1?}"
 
@@ -53,56 +83,41 @@ let
 
 
     pngquant_post_install_script_patch() {
-      # local pkg_dir="."
       local pkg_dir="./node_modules/pngquant-bin"
-
-      # TODO: Improve by downloading the same version as the package.
       post_install_vendor_bin_script_patch "$pkg_dir" \
-        "${pkgs.pngquant}/bin/pngquant" "$pkg_dir/vendor/pngquant"
+        "${pngquant}/bin/pngquant" "$pkg_dir/vendor/pngquant"
     }
 
     pngquant_post_install_script_patch
 
 
     optipng_post_install_script_patch() {
-      # local pkg_dir="."
       local pkg_dir="./node_modules/optipng-bin"
-
-      # TODO: Improve by downloading the same version as the package.
       post_install_vendor_bin_script_patch "$pkg_dir" \
-        "${pkgs.optipng}/bin/optipng" "$pkg_dir/vendor/optipng"
+        "${optipng}/bin/optipng" "$pkg_dir/vendor/optipng"
     }
 
     optipng_post_install_script_patch
 
 
     cwebp_post_install_script_patch() {
-      # local pkg_dir="."
       local pkg_dir="./node_modules/cwebp-bin"
-
-      # TODO: Improve by downloading the same version as the package.
       post_install_vendor_bin_script_patch "$pkg_dir" \
-        "${pkgs.libwebp}/bin/cwebp" "$pkg_dir/vendor/cwebp"
+        "${libwebp}/bin/cwebp" "$pkg_dir/vendor/cwebp"
     }
 
     cwebp_post_install_script_patch
 
     mozjpeg_post_install_script_patch() {
-      # local pkg_dir="."
       local pkg_dir="./node_modules/mozjpeg"
-
-      # TODO: Improve by downloading the same version as the package.
       post_install_vendor_bin_script_patch "$pkg_dir" \
-        "${pkgs.mozjpeg}/bin/cjpeg" "$pkg_dir/vendor/cjpeg"
+        "${mozjpeg}/bin/cjpeg" "$pkg_dir/vendor/cjpeg"
     }
 
     mozjpeg_post_install_script_patch
 
     electron_cd_post_install_script_patch() {
-      # local pkg_dir="."
       local pkg_dir="./node_modules/electron-chromedriver"
-
-      # TODO: Improve by downloading the same version as the package.
       post_install_vendor_bin_script_patch "$pkg_dir" \
         "${electron-chromedriver}/bin" "$pkg_dir/bin"
     }
@@ -111,48 +126,24 @@ let
 
 
     electron_post_install_script_patch() {
-      # local pkg_dir="."
       local pkg_dir="./node_modules/electron"
-
-      # TODO: Improve by downloading the same version as the package.
       post_install_vendor_bin_script_patch "$pkg_dir" \
         "${electron}/bin" "$pkg_dir/dist"
 
-      cp "${electron.pathTxtFile}" "$pkg_dir/path.txt"
+      cp "${electronPathTxtFile}" "$pkg_dir/path.txt"
     }
 
     electron_post_install_script_patch
 
 
     gifsicle_post_install_script_patch() {
-      # local pkg_dir="."
       local pkg_dir="./node_modules/gifsicle"
-
-      # TODO: Improve by downloading the same version as the package.
       post_install_vendor_bin_script_patch "$pkg_dir" \
-        "${pkgs.gifsicle}/bin/gifsicle" "$pkg_dir/vendor/gifsicle"
+        "${gifsicle}/bin/gifsicle" "$pkg_dir/vendor/gifsicle"
     }
 
     gifsicle_post_install_script_patch
   '';
-
-
-  /*
-  srcFilter = inSrc: nix-gitignore.gitignoreSourcePure [
-      ./.gitignore
-      ''
-        .git/
-        /.gitignore
-        .vscode/
-        node_modules
-        node_modules/
-        /node_modules*
-        result
-        result-*
-        *.nix
-      ''
-    ] inSrc;
-  */
 
   # As we're only interested by the dependencies (at the point)
   # we keep only the package and packaeg lock files. This
@@ -163,20 +154,19 @@ let
       "^package.json$"
     ];
 
+  filteredSrc = srcFilter gopass-ui-src;
+
 in
 
 nodePackages // {
   package = nodePackages.package.override {
-    /*
-      /package-lock.json
-    */
-    src = srcFilter ./.;
+    src = filteredSrc;
     inherit buildInputs preRebuild;
     dontNpmInstall = true;
   };
 
   shell = nodePackages.shell.override {
-    src = srcFilter ./.;
+    src = filteredSrc;
     inherit buildInputs preRebuild;
     dontNpmInstall = true;
   };
