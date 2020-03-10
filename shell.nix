@@ -11,6 +11,7 @@ mkShell rec {
     nodejs
     nodePackages.npm
     nodePackages.node2nix
+    squashfsTools
   ];
 
   unfilteredSrc = ./.;
@@ -42,6 +43,10 @@ mkShell rec {
 
     run() {
       electron "$shell_dir"
+    }
+
+    patch_electron_build_mksquashfs() {
+      ln -f -s -t "$HOME/.cache/electron-builder/appimage/appimage-9.1.0/linux-x64" "${squashfsTools}/bin/mksquashfs"
     }
   '';
 }
