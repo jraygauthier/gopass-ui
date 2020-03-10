@@ -119,7 +119,7 @@ const setup = async () => {
 
     mainWindow.on('closed', () => {
         app.quit()
-    });
+    })
 
     searchWindow = createSearchWindow(false)
 
