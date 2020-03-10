@@ -17,6 +17,7 @@
 , nodejs-10_x
 , nodePackages_10_x
 , optipng
+, p7zip
 , pngquant
 , python2
 , utillinux

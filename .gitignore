@@ -2,6 +2,7 @@ node_modules/
 /node_modules
 /result
 /result-*
+/fix-node-pkgs/
 
 .idea/
 *.iml

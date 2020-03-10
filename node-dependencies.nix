@@ -13,6 +13,7 @@
 , mozjpeg
 , nodejs-10_x
 , optipng
+, p7zip
 , pngquant
 , python2
 , utillinux
@@ -150,6 +151,16 @@ let
     }
 
     gifsicle_post_install_script_patch
+
+    p7zip_bin_post_install_script_patch() {
+      # local pkg_dir="."
+      local pkg_dir="./node_modules/7zip-bin"
+      rm -f "$pkg_dir/linux/x64/7za"
+      post_install_vendor_bin_script_patch "$pkg_dir" \
+        "${p7zip}/bin/7za" "$pkg_dir/linux/x64/7za"
+    }
+
+    p7zip_bin_post_install_script_patch
   '';
 
   # As we're only interested by the dependencies (at the point)
