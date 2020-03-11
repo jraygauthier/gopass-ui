@@ -48,5 +48,11 @@ mkShell rec {
     patch_electron_build_mksquashfs() {
       ln -f -s -t "$HOME/.cache/electron-builder/appimage/appimage-9.1.0/linux-x64" "${squashfsTools}/bin/mksquashfs"
     }
+
+    release() {
+      electron-builder --publish onTag
+    }
+
+    export USE_SYSTEM_MKSQUASHFS=1
   '';
 }
