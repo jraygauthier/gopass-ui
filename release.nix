@@ -61,6 +61,10 @@ rec {
       }
 
       release() {
+         electron-builder --dir
+      }
+
+      release_all() {
         electron-builder --publish onTag
       }
 
