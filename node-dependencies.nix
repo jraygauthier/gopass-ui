@@ -1,24 +1,9 @@
-{ system
-, lib
-, stdenv
-, fetchgit
-, fetchurl
-, runCommand
-, writeTextFile
-, electron_5
-, electron-chromedriver_3 ? null
-, gifsicle
-, jq
-, libwebp
-, mozjpeg
-, nodejs-10_x
-, optipng
-, p7zip
-, pngquant
-, python2
-, utillinux
-, gopass-ui-src
+{ pkgs ? import <nixpkgs> { inherit system; }
+, system ? builtins.currentSystem
+, gopass-ui-src ? ./.
 }:
+
+with pkgs;
 
 let
   nodePackages = import ./node-composition.nix {
@@ -31,7 +16,9 @@ let
   };
 
   electron = electron_5;
-  electron-chromedriver = electron-chromedriver_3;
+  electron-chromedriver = if pkgs ? electron-chromedriver_3
+    then electron-chromedriver_3
+    else null;
   # This file is written by `node_modules/electron/install.js::extractFile`
   # and seems to be mandatory for the package to recognise that the bin dist
   # has been properly installed.

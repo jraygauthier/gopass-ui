@@ -54,7 +54,9 @@ stdenv.mkDerivation rec {
     ''
   ] unfilteredSrc;
 
-  nodeDeps = (lib.callPackageWith args ./node-dependencies.nix {
+  nodeDeps = (import ./node-dependencies.nix {
+      inherit system;
+      pkgs = args // { inherit electron-chromedriver_3; };
       gopass-ui-src = unfilteredSrc;
     }).package;
 
