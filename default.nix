@@ -16,7 +16,7 @@
 , mozjpeg
 , nix-gitignore
 , nodejs-12_x
-, nodePackages_12_x
+, nodePackages
 , optipng
 , p7zip
 , pngquant
@@ -138,7 +138,7 @@ stdenv.mkDerivation rec {
       } ''
       makeWrapper "${./nixify-node-deps.sh}" "$out" \
         --add-flags "${src}" \
-        --prefix PATH : "${nodePackages_12_x.node2nix}/bin"
+        --prefix PATH : "${nodePackages.node2nix}/bin"
     '';
   };
 
